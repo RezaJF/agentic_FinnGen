@@ -1,8 +1,5 @@
 # Agentic FinnGen
 
-**Kaggle Agents Intensive Capstone Project**
-*Track: Agents for Good*
-
 ## Overview
 **Agentic FinnGen** is an advanced multi-agent system designed to accelerate biomedical research using FinnGen data. It leverages **Google ADK** and **Gemini** to answer complex research questions by orchestrating specialized agents.
 
@@ -64,3 +61,13 @@ graph TD
 
 3.  **Run the Demo**:
     Open `submission/submission.ipynb` and run all cells.
+
+
+## Author
+
+**Reza Jabal, PhD**
+rjabal@broadinstitute.org
+
+## License
+
+This project is licensed under the MIT License.

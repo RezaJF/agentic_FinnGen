@@ -1,0 +1,16 @@
+[project]
+name = "agentic-finngen"
+version = "0.1.0"
+description = "Agentic workflow for FinnGen analysis using Google ADK"
+requires-python = ">=3.10"
+dependencies = [
+    "google-adk",
+    "beautifulsoup4",
+    "requests",
+    "python-dotenv",
+    "pandas",
+    "google-generativeai"
+]
+
+[project.scripts]
+agentic-finngen = "src.main:main"

@@ -21,6 +21,25 @@ This high barrier to entry slows down research, limits access to bioinformaticia
 *   **Rigorous Analysis**: It leverages the `fganalysis` R package to perform standardized, high-quality statistical analyses like Drug Response and BLUP (Best Linear Unbiased Predictor) modeling.
 *   **Self-Correction**: A multi-agent feedback loop ensures that generated code is reviewed and corrected before results are presented.
 
+## Advanced Use Cases
+Agentic FinnGen goes beyond simple queries to handle sophisticated, real-world research scenarios:
+
+1.  **GLP-1 Agonist Weight Loss Analysis**
+    *   *Scenario*: "Identify individuals prescribed GLP-1 receptor agonists and calculate the proportion who achieved >20% weight loss within one year of treatment initiation."
+    *   *Capability*: The agent identifies GLP-1 ATC codes, retrieves weight measurements (labs), and executes custom R code to calculate percentage change per patient.
+
+2.  **CKD Trajectory Modeling**
+    *   *Scenario*: "Estimate eGFR trajectories for patients with Chronic Kidney Disease (CKD) following the initiation of ACE inhibitors or Angiotensin Receptor Blockers (ARBs)."
+    *   *Capability*: The agent defines the CKD cohort and drug exposure, then utilizes the `calculate_blup_slopes` tool to model longitudinal eGFR trends.
+
+3.  **Comorbidity and Polypharmacy Overlap**
+    *   *Scenario*: "Quantify the intersection of patient cohorts diagnosed with hypertension, prescribed statins, and prescribed GLP-1 receptor agonists."
+    *   *Capability*: The agent performs complex set operations on multiple cohorts (Diagnosis + Drug A + Drug B) to visualize overlaps.
+
+4.  **Pharmacome-Wide Association Study (PheWAS)**
+    *   *Scenario*: "Systematically screen all ATC drug codes to identify those associated with a significant median change in LDL cholesterol levels (comparing 6 months pre- vs. 6 months post-fulfillment)."
+    *   *Capability*: The agent iterates through drug classes, running the `create_drug_response` pipeline at scale to discover novel drug-phenotype associations.
+
 ## Architecture
 The core of Agentic FinnGen is a hierarchical multi-agent system orchestrated by a **Planner Agent**. This modular design allows for specialized reasoning and robust error handling.
 

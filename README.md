@@ -1,7 +1,7 @@
-# Agentic FinnGen
+# Mithril (Agentic FinnGen)
 
 ## Overview
-**Agentic FinnGen** is an advanced multi-agent system designed to accelerate biomedical research using FinnGen data. It leverages **Google ADK** and **Gemini** to answer complex research questions by orchestrating specialized agents.
+**Mithril** is an advanced multi-agent system designed to accelerate biomedical research using FinnGen data. It leverages **Google ADK** and **Gemini** to answer complex research questions by orchestrating specialized agents.
 
 ## Problem Statement
 Biomedical datasets like FinnGen offer immense potential for discovery but are notoriously difficult to navigate. Analyzing this data currently requires a rare combination of skills:
@@ -24,7 +24,7 @@ This high barrier to entry slows down research, limits access to bioinformaticia
 -   **Observability**: Structured logging of all agent actions.
 
 ## Advanced Use Cases
-Agentic FinnGen is capable of handling sophisticated, real-world research scenarios:
+**Mithril** is capable of handling sophisticated, real-world research scenarios:
 
 1.  **GLP-1 Agonist Weight Loss Analysis**
     *   *Scenario*: "Identify individuals prescribed GLP-1 receptor agonists and calculate the proportion who achieved >20% weight loss within one year of treatment initiation."

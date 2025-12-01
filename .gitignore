@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+.DS_Store
+
+# Project specific
+vm_setup_guide.md
+agent_trace.log
+agent_memory.json

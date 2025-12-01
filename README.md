@@ -1,4 +1,4 @@
-# Mithril (Agentic FinnGen)
+# Mithril (The Agentic FinnGen Analysis System)
 
 ## Overview
 **Mithril** is an advanced multi-agent system designed to accelerate biomedical research using FinnGen data. It leverages **Google ADK** and **Gemini** to answer complex research questions by orchestrating specialized agents.

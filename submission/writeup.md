@@ -19,8 +19,8 @@ Agents are the ideal solution for this problem because biomedical research is in
 
 **Mithril** acts as a virtual research assistant that bridges the gap between medical expertise and bioinformatics. By automating the translation of clinical questions into rigorous statistical analyses, it democratizes access to the data and accelerates the pace of discovery.
 
-## What you created
-I created **Mithril**, a hierarchical multi-agent system orchestrated by a **Planner Agent**. This modular design allows for specialized reasoning and robust error handling.
+## What we created
+We created **Mithril**, a hierarchical multi-agent system orchestrated by a **Planner Agent**. This modular design allows for specialized reasoning and robust error handling.
 
 ### Architecture
 1.  **Planner Agent (Orchestrator)**: The central brain. It breaks down user queries into a logical plan, delegates tasks to sub-agents, and manages the session memory.

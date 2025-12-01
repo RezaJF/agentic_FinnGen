@@ -1,10 +1,7 @@
-# Agentic FinnGen
+# Mithril (The Agentic FinnGen Analysis System)
 
 **Hackathon Writeup** · **Agents Intensive - Capstone Project**
 **Track**: Agents for Good
-
-## Project Overview
-**Agentic FinnGen** is a sophisticated multi-agent system designed to democratize access to complex biomedical data analysis. Built using the **Google Agent Development Kit (ADK)** and **Gemini**, it acts as a virtual research assistant that empowers clinicians and researchers to explore the massive FinnGen dataset using natural language. By automating the translation of clinical questions into rigorous statistical analyses, it bridges the gap between medical expertise and bioinformatics.
 
 ## Problem Statement
 Biomedical datasets like FinnGen offer immense potential for discovery but are notoriously difficult to navigate. Analyzing this data currently requires a rare combination of skills:
@@ -14,36 +11,18 @@ Biomedical datasets like FinnGen offer immense potential for discovery but are n
 
 This high barrier to entry slows down research, limits access to bioinformaticians, and leaves valuable insights undiscovered in the data.
 
-## Solution Statement
-**Agentic FinnGen** solves this by providing an intelligent interface that understands biomedical context and executes code autonomously.
-*   **Automated Research**: The agent actively researches phenotypes on `risteys.finngen.fi` to understand the medical context of a query (e.g., mapping "Colitis" to "K51").
-*   **Code Generation & Execution**: It dynamically writes and executes R code to answer ad-hoc questions (e.g., "How many patients with BMI > 40?"), removing the need for manual coding.
-*   **Rigorous Analysis**: It leverages the `fganalysis` R package to perform standardized, high-quality statistical analyses like Drug Response and BLUP (Best Linear Unbiased Predictor) modeling.
-*   **Self-Correction**: A multi-agent feedback loop ensures that generated code is reviewed and corrected before results are presented.
+## Why agents?
+Agents are the ideal solution for this problem because biomedical research is inherently **iterative** and **multi-modal**. A simple chatbot cannot handle the complexity of:
+*   **Planning**: Breaking down a vague clinical question ("Effect of statins on LDL") into a sequence of precise data operations.
+*   **Tool Use**: Interacting with specialized bioinformatics tools (R packages, databases) that require strict syntax.
+*   **Error Recovery**: Real-world code often fails. Agents can read error messages, debug their own code, and retry—something a standard script or LLM cannot do.
 
-## Advanced Use Cases
-Agentic FinnGen goes beyond simple queries to handle sophisticated, real-world research scenarios:
+**Mithril** acts as a virtual research assistant that bridges the gap between medical expertise and bioinformatics. By automating the translation of clinical questions into rigorous statistical analyses, it democratizes access to the data and accelerates the pace of discovery.
 
-1.  **GLP-1 Agonist Weight Loss Analysis**
-    *   *Scenario*: "Identify individuals prescribed GLP-1 receptor agonists and calculate the proportion who achieved >20% weight loss within one year of treatment initiation."
-    *   *Capability*: The agent identifies GLP-1 ATC codes, retrieves weight measurements (labs), and executes custom R code to calculate percentage change per patient.
+## What you created
+I created **Mithril**, a hierarchical multi-agent system orchestrated by a **Planner Agent**. This modular design allows for specialized reasoning and robust error handling.
 
-2.  **CKD Trajectory Modeling**
-    *   *Scenario*: "Estimate eGFR trajectories for patients with Chronic Kidney Disease (CKD) following the initiation of ACE inhibitors or Angiotensin Receptor Blockers (ARBs)."
-    *   *Capability*: The agent defines the CKD cohort and drug exposure, then utilizes the `calculate_blup_slopes` tool to model longitudinal eGFR trends.
-
-3.  **Comorbidity and Polypharmacy Overlap**
-    *   *Scenario*: "Quantify the intersection of patient cohorts diagnosed with hypertension, prescribed statins, and prescribed GLP-1 receptor agonists."
-    *   *Capability*: The agent performs complex set operations on multiple cohorts (Diagnosis + Drug A + Drug B) to visualize overlaps.
-
-4.  **Pharmacome-Wide Association Study (PheWAS)**
-    *   *Scenario*: "Systematically screen all ATC drug codes to identify those associated with a significant median change in LDL cholesterol levels (comparing 6 months pre- vs. 6 months post-fulfillment)."
-    *   *Capability*: The agent iterates through drug classes, running the `create_drug_response` pipeline at scale to discover novel drug-phenotype associations.
-
-## Architecture
-The core of Agentic FinnGen is a hierarchical multi-agent system orchestrated by a **Planner Agent**. This modular design allows for specialized reasoning and robust error handling.
-
-### The Agents
+### Architecture
 1.  **Planner Agent (Orchestrator)**: The central brain. It breaks down user queries into a logical plan, delegates tasks to sub-agents, and manages the session memory.
 2.  **Researcher Agent**: The domain expert. It uses a custom tool to scrape `risteys.finngen.fi`, providing the system with definitions, statistics, and ontology codes for phenotypes.
 3.  **Analyst Agent**: The statistician. It interfaces with the `fganalysis` MCP server to run pre-defined, complex analysis pipelines (e.g., `create_drug_response`).
@@ -56,7 +35,7 @@ The core of Agentic FinnGen is a hierarchical multi-agent system orchestrated by
 graph TD
     User[User Query] --> Planner[Planner Agent]
     
-    subgraph "Agentic FinnGen System"
+    subgraph "Mithril System"
         Planner -->|Needs Context| Researcher[Researcher Agent]
         Planner -->|Standard Analysis| Analyst[Analyst Agent]
         Planner -->|Custom Query| Coder[Coder Agent]
@@ -76,29 +55,35 @@ graph TD
     RPackage <-->|Queries| Data[(FinnGen Data)]
 ```
 
-## Essential Tools and Utilities
-The agents are equipped with powerful tools that extend their capabilities beyond text generation.
+## Demo
+The capabilities of Mithril are demonstrated in the `submission.ipynb` notebook. The demo showcases:
 
-### fganalysis MCP Server
-We developed a custom **Model Context Protocol (MCP)** server to expose the functionality of the `fganalysis` R package. This server runs as a separate process and provides tools like:
-*   `run_drug_response_analysis`: Automates the creation of drug response cohorts and summary plots.
-*   `calculate_blup_slopes`: Runs Linear Mixed Models to estimate individual disease trajectories.
-*   `execute_r_code`: A secure sandbox for executing arbitrary R code generated by the Coder Agent.
+1.  **GLP-1 Agonist Weight Loss Analysis**: The agent identifies GLP-1 ATC codes, retrieves weight measurements, and executes custom R code to calculate percentage weight loss per patient.
+2.  **CKD Trajectory Modeling**: The agent utilizes the `calculate_blup_slopes` tool to model longitudinal eGFR trends in patients with Chronic Kidney Disease.
+3.  **Comorbidity Overlap**: The agent performs complex set operations to visualize the intersection of hypertension, statin use, and GLP-1 prescription.
 
-### Risteys Scraper
-A custom ADK tool that allows the Researcher Agent to navigate the Risteys website. It parses HTML content to extract structured data about phenotypes, including prevalence, descriptions, and related ontology codes.
+These scenarios prove that Mithril can handle both standard statistical pipelines and ad-hoc, complex queries requiring dynamic code generation.
 
-### Memory & Observability
-*   **FileBasedMemory**: Persists the conversation history and context (e.g., identified OMOP codes) across turns, allowing for multi-step reasoning.
-*   **Structured Logging**: Every agent action, thought process, and tool call is logged to `agent_trace.log` for debugging and evaluation.
+## The Build
+Mithril was built using the **Google Agent Development Kit (ADK)** and **Gemini 1.5 Pro**.
 
-## Conclusion
-Agentic FinnGen demonstrates the power of combining Large Language Models with specialized domain tools. By wrapping a rigorous bioinformatics package (`fganalysis`) in an agentic interface, we have created a system that is both accessible to non-coders and powerful enough for real research. It transforms the role of the researcher from a data wrangler to a scientific director.
+### Core Technologies
+*   **Google ADK**: For defining agents, tools, and the orchestration loop.
+*   **Gemini 1.5 Pro**: The reasoning engine powering all agents.
+*   **Model Context Protocol (MCP)**: A custom MCP server was built to bridge the Python-based agents with the R-based bioinformatics environment.
 
-## Value Statement
-**Accelerating Discovery**: What previously took hours of writing R scripts and consulting documentation now takes minutes of natural language interaction.
-**Democratizing Access**: Clinicians without coding skills can now ask complex questions about patient cohorts and treatment outcomes directly.
-**Ensuring Quality**: By using the validated `fganalysis` package under the hood, the agent ensures that analyses follow best practices, reducing the risk of human error in ad-hoc scripting.
+### Essential Tools
+*   **fganalysis MCP Server**: Exposes the `fganalysis` R package functions (`run_drug_response_analysis`, `calculate_blup_slopes`) and a secure `execute_r_code` sandbox.
+*   **Risteys Scraper**: A custom tool that parses `risteys.finngen.fi` to extract phenotype metadata.
+*   **FileBasedMemory**: A custom memory module that persists session context across turns.
+*   **Structured Logging**: A logging system that captures every agent thought and action for observability.
+
+## If I had more time, this is what I'd do
+If I had more time, I would expand Mithril to cover the entire drug discovery value chain:
+
+1.  **Integrated GWAS & Burden Analysis**: I would add specialized agents and tools to perform Genome-Wide Association Studies (GWAS) and gene burden tests directly within the workflow. This would allow users to go from a phenotype query to identifying significant genetic variants in minutes.
+2.  **TxGemma Integration**: I would integrate with **TxGemma** (Therapeutics Gemma), a model fine-tuned for drug discovery tasks. This would enable the agent to not only identify targets but also suggest potential therapeutic compounds and predict their properties.
+3.  **End-to-End Drug Discovery Agent**: By combining phenotype analysis (Mithril), genetic association (GWAS), and target validation (TxGemma), I would create a truly end-to-end agent that can hypothesize a target and validate it in silico using real-world evidence from FinnGen.
 
 ## Author
 **Reza Jabal, PhD**

@@ -81,7 +81,7 @@ Mithril was built using the **Google Agent Development Kit (ADK)** and **Gemini 
 ## If I had more time, this is what I'd do
 If I had more time, I would expand Mithril to cover the entire drug discovery value chain:
 
-1.  **Integrated GWAS & Burden Analysis**: I would add specialized agents and tools to perform Genome-Wide Association Studies (GWAS) and gene burden tests directly within the workflow. This would allow users to go from a phenotype query to identifying significant genetic variants in minutes.
+1.  **Integrated GWAS & Burden Analysis**: I would add specialized agents and tools to perform Genome-Wide Association Studies (GWAS) and gene burden tests directly within the workflow. This would enable users to swiftly transition from a phenotype query to identifying significant genetic variants.
 2.  **TxGemma Integration**: I would integrate with **TxGemma** (Therapeutics Gemma), a model fine-tuned for drug discovery tasks. This would enable the agent to not only identify targets but also suggest potential therapeutic compounds and predict their properties.
 3.  **End-to-End Drug Discovery Agent**: By combining phenotype analysis (Mithril), genetic association (GWAS), and target validation (TxGemma), I would create a truly end-to-end agent that can hypothesize a target and validate it in silico using real-world evidence from FinnGen.
 

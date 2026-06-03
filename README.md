@@ -1,7 +1,7 @@
 # Mithril (The Agentic FinnGen Analysis System)
 
 ## Overview
-**Mithril** is an advanced multi-agent system designed to accelerate biomedical research using FinnGen data. It leverages **Google ADK** and **Gemini** to answer complex research questions by orchestrating specialized agents.
+**Mithril** is an advanced multi-agent system designed to accelerate biomedical research using FinnGen data. It orchestrates specialized agents to answer complex research questions and is **LLM-provider-agnostic** — out of the box it supports **Anthropic Claude** and **Google Gemini** (via the new `google-genai` SDK), selected by a single environment variable.
 
 ## Problem Statement
 Biomedical datasets like FinnGen offer immense potential for discovery but are notoriously difficult to navigate. Analyzing this data currently requires a rare combination of skills:
@@ -69,31 +69,129 @@ graph TD
 ```
 
 ## Project Structure
--   `src/agents/`: Agent implementations.
--   `src/tools/`: Custom tools (Risteys Scraper, MCP Bridge).
--   `src/memory.py`: Session management.
--   `src/logger.py`: Observability.
+-   `src/agentic_finngen/agents/`: Agent implementations (planner, researcher, analyst, coder, reviewer).
+-   `src/agentic_finngen/llm/`: Provider-agnostic LLM abstraction (`base`, `loop`, `gemini`, `anthropic`).
+-   `src/agentic_finngen/tools/`: Custom tools (Risteys scraper, fganalysis MCP bridge).
+-   `src/agentic_finngen/memory.py`: Session management.
+-   `src/agentic_finngen/logger.py`: Observability.
+-   `src/agentic_finngen/main.py`: CLI entry point (`agentic-finngen`).
 -   `submission/`: Final notebook and write-up.
 
 ## Setup
 
-1.  **Install Dependencies**:
-    ```bash
-    pip install -e .
-    ```
-    *Ensure `fganalysis_MCP` is installed.*
+### 1. Install
 
-2.  **Configure Environment**:
-    Set `VERTEX_API_KEY` in `.env`.
+The project uses [uv](https://docs.astral.sh/uv/) for venv and dependency management.
 
-3.  **Run the Demo**:
-    Open `submission/submission.ipynb` and run all cells.
+```bash
+# Create a venv (skip if .venv already exists)
+uv venv
+
+# Install the project and its deps in editable mode
+uv pip install -e .
+```
+
+Plain `pip install -e .` also works if you don't have `uv`.
+
+> **Optional**: the analyst and coder agents call the [`fganalysis_MCP`](https://github.com/rezajf/fganalysis_MCP) sibling project for R-backed analyses. If it isn't installed, those tools fall back to stubs and the rest of the workflow still runs.
+
+### 2. Configure the LLM provider
+
+Mithril picks an LLM provider from environment variables at process start. Put them in a `.env` at the repo root:
+
+```dotenv
+# Pick one provider
+LLM_PROVIDER=claude               # or: gemini
+LLM_MODEL=claude-sonnet-4-6       # or: gemini-2.0-flash, gemini-1.5-pro-latest, etc.
+
+# Credentials for whichever provider you chose
+ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=AIza...
+```
+
+Defaults if you set nothing: `LLM_PROVIDER=claude`, `LLM_MODEL=claude-sonnet-4-6`. Switch providers later by editing `.env` only — no code changes.
+
+**Vertex AI (Gemini) instead of API key:** set `GOOGLE_GENAI_USE_VERTEXAI=true` plus `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION`, and authenticate with `gcloud auth application-default login`.
+
+### 3. Configure the FinnGen database (optional)
+
+To point the fganalysis tools at a specific DB config, set:
+
+```dotenv
+FGANALYSIS_CONFIG_PATH=/abs/path/to/db_config.json
+```
+
+The bridge auto-injects this into every fganalysis tool call. Without it, the MCP server uses its own default.
+
+### 4. Logging verbosity (optional)
+
+All output flows through a central logger ([`src/agentic_finngen/logger.py`](src/agentic_finngen/logger.py)). By default it runs at `INFO`, which shows user-facing UI — workflow progress and final results. Verbose internals (raw model responses, full research summaries, intermediate plans) are logged at `DEBUG` and hidden unless you opt in:
+
+```bash
+# Enable debug output for a single run
+AGENTIC_FINNGEN_LOG_LEVEL=DEBUG agentic-finngen "your question here"
+```
+
+```dotenv
+# Or set it persistently in .env
+AGENTIC_FINNGEN_LOG_LEVEL=DEBUG
+```
+
+Any standard level name works (`DEBUG`, `INFO`, `WARNING`, `ERROR`); unknown values fall back to `INFO`. Output goes to stdout and to `agent_trace.log`.
+
+## Running the workflow
+
+### CLI
+
+```bash
+# Positional query
+.venv/bin/agentic-finngen "How many patients on statins have BMI > 40?"
+
+# Or activate the venv once per shell
+source .venv/bin/activate
+agentic-finngen "Calculate eGFR trajectories for CKD patients on ACE inhibitors"
+
+# Or use uv run (auto-syncs deps, no activation needed — recommended in dev)
+uv run agentic-finngen "your question here"
+
+# Read query from stdin (handy for long prompts)
+cat long_query.txt | agentic-finngen
+agentic-finngen -                                     # same: '-' means stdin
+
+# Resume a session
+agentic-finngen --session-id abc123 "follow-up question"
+```
+
+The CLI prints intermediate stages (research summary, plan, results) and exits.
+
+### Notebook
+
+```bash
+.venv/bin/jupyter lab submission/submission.ipynb
+```
+
+Cells run the same agents end-to-end and demonstrate three research scenarios (GLP-1, CKD, comorbidity overlap), session memory inspection, log parsing, and an LLM-based evaluation step — all provider-agnostic.
+
+### From Python
+
+```python
+from dotenv import load_dotenv
+from agentic_finngen.agents.planner import PlannerAgent
+
+load_dotenv()
+result = PlannerAgent().execute_workflow("your question here")
+print(result)
+```
 
 
 ## Author
 
 **Reza Jabal, PhD**
 rjabal@broadinstitute.org
+
+## Contributor
+**Mitja Kurki, PhD**
+mkurki@broadinstitute.org
 
 ## License
 

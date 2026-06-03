@@ -2,6 +2,11 @@ import requests
 from bs4 import BeautifulSoup
 from typing import Dict, Any, Optional
 
+from agentic_finngen.llm.base import Tool
+from agentic_finngen.logger import get_logger
+
+logger = get_logger(__name__)
+
 RISTEYS_BASE_URL = "https://risteys.finngen.fi"
 
 def search_risteys(keyword: str) -> Dict[str, Any]:
@@ -60,6 +65,26 @@ def _parse_phenocode_page(html_content: str, url: str) -> Dict[str, Any]:
         "stats": stats
     }
 
+search_risteys_tool = Tool(
+    name="search_risteys",
+    description=(
+        "Search Risteys for a FinnGen phenotype by phenocode (e.g. 'K51') or "
+        "keyword. Returns title, description, and key statistics."
+    ),
+    input_schema={
+        "type": "object",
+        "properties": {
+            "keyword": {
+                "type": "string",
+                "description": "The phenotype code (e.g. 'K51') or name to search for.",
+            }
+        },
+        "required": ["keyword"],
+    },
+    fn=search_risteys,
+)
+
+
 if __name__ == "__main__":
     # Test
-    print(search_risteys("K51"))
+    logger.info(search_risteys("K51"))

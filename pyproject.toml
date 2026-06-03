@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "agentic-finngen"
 version = "0.1.0"
@@ -9,8 +13,12 @@ dependencies = [
     "requests",
     "python-dotenv",
     "pandas",
-    "google-generativeai"
+    "google-genai",
+    "anthropic"
 ]
 
 [project.scripts]
-agentic-finngen = "src.main:main"
+agentic-finngen = "agentic_finngen.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

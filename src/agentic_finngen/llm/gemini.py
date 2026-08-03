@@ -161,3 +161,16 @@ class GeminiClient:
                     text_parts.append(part.text)
 
         return Response(text="".join(text_parts), tool_calls=tool_calls)
+
+    def list_models(self) -> list[str]:
+        names = []
+        for model in self._client.models.list():
+            name = (getattr(model, "name", "") or "").removeprefix("models/")
+            if not name:
+                continue
+            # Only models that can serve generateContent are usable here.
+            actions = getattr(model, "supported_actions", None)
+            if actions and "generateContent" not in actions:
+                continue
+            names.append(name)
+        return sorted(names)

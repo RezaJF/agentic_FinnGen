@@ -5,10 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agentic-finngen"
 version = "0.1.0"
-description = "Agentic workflow for FinnGen analysis using Google ADK"
+description = "Agentic workflow for deep clinical insight from FinnGen"
 requires-python = ">=3.10"
 dependencies = [
-    "google-adk",
     "beautifulsoup4",
     "requests",
     "python-dotenv",
@@ -16,6 +15,11 @@ dependencies = [
     "google-genai",
     "anthropic"
 ]
+
+[project.optional-dependencies]
+# Needed for the OpenAI-compatible providers: openai, xai, deepseek, mistral,
+# groq, together, openrouter, and any local OpenAI-compatible server.
+openai = ["openai"]
 
 [project.scripts]
 agentic-finngen = "agentic_finngen.main:main"

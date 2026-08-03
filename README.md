@@ -1,7 +1,7 @@
 # Mithril (The Agentic FinnGen Analysis System)
 
 ## Overview
-**Mithril** is an advanced multi-agent system designed to accelerate biomedical research using FinnGen data. It orchestrates specialized agents to answer complex research questions and is **LLM-provider-agnostic** — out of the box it supports **Anthropic Claude** and **Google Gemini** (via the new `google-genai` SDK), selected by a single environment variable.
+**Mithril** is an advanced multi-agent system designed to accelerate biomedical research using FinnGen data. It orchestrates specialized agents to answer complex research questions and is **LLM-provider-agnostic** — out of the box it supports **Anthropic Claude**, **Google Gemini**, **OpenAI**, **xAI Grok**, **DeepSeek**, **Mistral**, **Groq**, **Together**, **OpenRouter**, and any self-hosted OpenAI-compatible endpoint, selected by a single environment variable.
 
 ## Problem Statement
 Biomedical datasets like FinnGen offer immense potential for discovery but are notoriously difficult to navigate. Analyzing this data currently requires a rare combination of skills:
@@ -70,7 +70,7 @@ graph TD
 
 ## Project Structure
 -   `src/agentic_finngen/agents/`: Agent implementations (planner, researcher, analyst, coder, reviewer).
--   `src/agentic_finngen/llm/`: Provider-agnostic LLM abstraction (`base`, `loop`, `gemini`, `anthropic`).
+-   `src/agentic_finngen/llm/`: Provider-agnostic LLM abstraction (`base`, `loop`, `anthropic`, `gemini`, `openai_compatible`), with the provider registry in `__init__`.
 -   `src/agentic_finngen/tools/`: Custom tools (Risteys scraper, fganalysis MCP bridge).
 -   `src/agentic_finngen/memory.py`: Session management.
 -   `src/agentic_finngen/logger.py`: Observability.
@@ -97,19 +97,55 @@ Plain `pip install -e .` also works if you don't have `uv`.
 
 ### 2. Configure the LLM provider
 
-Mithril picks an LLM provider from environment variables at process start. Put them in a `.env` at the repo root:
+Mithril picks an LLM provider from environment variables at process start. Copy
+`.env.example` to `.env` at the repo root and fill in one credential:
 
 ```dotenv
-# Pick one provider
-LLM_PROVIDER=claude               # or: gemini
-LLM_MODEL=claude-sonnet-4-6       # or: gemini-2.0-flash, gemini-1.5-pro-latest, etc.
-
-# Credentials for whichever provider you chose
-ANTHROPIC_API_KEY=sk-ant-...
+LLM_PROVIDER=gemini
 GEMINI_API_KEY=AIza...
+# LLM_MODEL=gemini-2.5-pro   # omit to take the provider default
 ```
 
-Defaults if you set nothing: `LLM_PROVIDER=claude`, `LLM_MODEL=claude-sonnet-4-6`. Switch providers later by editing `.env` only — no code changes.
+Switching labs is a config change, never a code change:
+
+| `LLM_PROVIDER` | API key variable | Default model |
+| --- | --- | --- |
+| `anthropic` (aka `claude`) | `ANTHROPIC_API_KEY` | `claude-opus-5` |
+| `gemini` (aka `google`) | `GEMINI_API_KEY` | `gemini-2.5-pro` |
+| `openai` (aka `gpt`) | `OPENAI_API_KEY` | set `LLM_MODEL` |
+| `xai` (aka `grok`) | `XAI_API_KEY` | set `LLM_MODEL` |
+| `deepseek` | `DEEPSEEK_API_KEY` | set `LLM_MODEL` |
+| `mistral` | `MISTRAL_API_KEY` | set `LLM_MODEL` |
+| `groq` | `GROQ_API_KEY` | set `LLM_MODEL` |
+| `together` | `TOGETHER_API_KEY` | set `LLM_MODEL` |
+| `openrouter` | `OPENROUTER_API_KEY` | set `LLM_MODEL` |
+| `openai-compatible` | `LLM_API_KEY` | set `LLM_MODEL` |
+
+Anthropic and Gemini use their native SDKs. Everything below them speaks the
+OpenAI `/chat/completions` dialect and differs only by base URL, so the same
+adapter also fronts self-hosted vLLM or Ollama servers:
+
+```dotenv
+LLM_PROVIDER=openai-compatible
+LLM_BASE_URL=http://localhost:11434/v1
+LLM_API_KEY=ollama
+LLM_MODEL=<model served there>
+```
+
+Those providers need the optional extra: `pip install -e '.[openai]'`.
+
+A default model is only pre-set where a current function-calling id is known;
+elsewhere `LLM_MODEL` is required rather than guessed, because a stale default
+surfaces as a confusing 404 on the first call. Discover what your own key can
+reach, and override either setting per run:
+
+```bash
+agentic-finngen --list-providers
+agentic-finngen --list-models
+agentic-finngen --provider gemini --model gemini-2.5-flash "your question"
+```
+
+`LLM_MAX_TOKENS` caps output on whichever provider is active.
 
 **Vertex AI (Gemini) instead of API key:** set `GOOGLE_GENAI_USE_VERTEXAI=true` plus `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION`, and authenticate with `gcloud auth application-default login`.
 

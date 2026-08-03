@@ -102,3 +102,6 @@ class AnthropicClient:
                 )
 
         return Response(text="".join(text_parts), tool_calls=tool_calls)
+
+    def list_models(self) -> list[str]:
+        return sorted(model.id for model in self._client.models.list())
